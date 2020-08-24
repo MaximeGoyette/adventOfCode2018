@@ -1,17 +1,40 @@
-data = open('12.txt').read().split('\n')
+data = '''initial state: #..#.#..##......###...###
 
-state = data[0].split(': ')[1]
-state = {i for i, x in enumerate(state) if x == '#'}
+...## => #
+..#.. => #
+.#... => #
+.#.#. => #
+.#.## => #
+.##.. => #
+.#### => #
+#.#.# => #
+#.### => #
+##.#. => #
+##.## => #
+###.. => #
+###.# => #
+####. => #'''
+#data = open('12.txt').read()
 
-rules = {x.split(' ')[0]: x.split(' ')[-1] for x in data[2:]}
+initial_state = data.split('\n')[0].split(': ')[1]
 
-for g in xrange(20):
-    print g, ''.join(['#' if i in state else '.' for i in xrange(-3, max(state) + 1)])
-    next_state = set()
-    for i in xrange(min(state) - 5, max(state) + 5):
-        current = ''.join(['#' if i + j in state else '.' for j in xrange(-2, 3)])
-        if current in rules and rules[current] == '#':
-            next_state.add(i)
-    state = next_state
+spread = [x.split(' => ') for x in data.split('\n')[2:]]
+spread = {x:y for x, y in spread}
+#spread = {frozenset([i - 2 for i, x in enumerate(k) if x == '#']):v == '#' for k, v in spread}
 
-print sum(state)
+def next_state(previous_state):
+    previous_state = '.....' + previous_state + '.....'
+    state = ''
+    for i in xrange(2, len(previous_state) - 2):
+        x = previous_state[i - 2:i + 3]
+        state += spread.get(x, '.')
+    return state.strip('.')
+
+state = initial_state
+
+for _ in xrange(20):
+    state = next_state(state)
+
+print sum([i for i, x in enumerate(state) if x == '#'])
+
+
